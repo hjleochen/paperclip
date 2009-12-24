@@ -111,6 +111,8 @@ module Paperclip
 
     def included base #:nodoc:
       base.extend ClassMethods
+      # Set it all up.
+      File.send(:include, Paperclip::Upfile)
       unless base.respond_to?(:define_callbacks)
         base.send(:include, Paperclip::CallbackCompatability)
       end
@@ -132,7 +134,7 @@ module Paperclip
     end
 
     def logger #:nodoc:
-      ActiveRecord::Base.logger
+      ActionController::Base.logger
     end
 
     def logging? #:nodoc:
@@ -238,11 +240,14 @@ module Paperclip
         attachment_for(name).file?
       end
 
-      validates_each(name) do |record, attr, value|
+      validates_each(name,:logic => name) do |record, attr, value|
         attachment = record.attachment_for(name)
         attachment.send(:flush_errors) unless attachment.valid?
       end
     end
+
+    #TODO unless option unsupport by mongomapper in validates options
+    #hack file /usr/lib/ruby/gems/1.8/gems/jnunemaker-validatable-1.8.1/lib/validatable/validations validation_base.rb files
 
     # Places ActiveRecord-style validations on the size of the file assigned. The
     # possible options are:
@@ -350,8 +355,4 @@ module Paperclip
 
 end
 
-# Set it all up.
-if Object.const_defined?("ActiveRecord")
-  ActiveRecord::Base.send(:include, Paperclip)
-  File.send(:include, Paperclip::Upfile)
-end
+#TODO include Paperclip in Model
