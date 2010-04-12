@@ -134,7 +134,8 @@ module Paperclip
     end
 
     def logger #:nodoc:
-      ActionController::Base.logger
+      #ActionController::Base.logger
+      Logger.new(STDOUT)
     end
 
     def logging? #:nodoc:
